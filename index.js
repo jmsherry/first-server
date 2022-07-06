@@ -1,26 +1,62 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose")
+
+
 const app = express();
 
-const { PORT = 3333 } = process.env;
+const {
+  PORT = 3333,
+  MONGODB_URI='mongodb://localhost:27017/cars5'
+} = process.env;
 
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 console.log("hello world");
 
+(async () => {
+  try {
+    const conn = await mongoose.connect(MONGODB_URI)
+    // console.log("🚀 ~ file: index.js ~ line 21 ~ conn", conn);
+    mongoose.connection.on('error', (err) => {
+      console.log(err);
+    })
+  } catch (err) {
+    console.log(`Connection error`, err);
+  }
+})();
+
 app.use((req, res, next) => {
   console.log(req.hostname);
   next();
 });
 
-const cars = [
-  { _id: 0, name: "bugatti" },
-  { _id: 1, name: "ferarri" },
-];
+const { Schema } = mongoose;
+const carSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  bhp: {
+    type: Number,
+    required: true,
+  },
+  avatar_url: {
+    type: String,
+    default: "https://static.thenounproject.com/png/449586-200.png",
+  },
+});
+
+const Car = mongoose.model('Car', carSchema);
+
+
+// const cars = [];
 
 app.get("/api/v1/cars", (req, res, next) => {
-  res.json(cars);
+  Car.find({}).exec((err, cars) => {
+    res.json(cars);
+  })
 });
 
 app.post("/api/v1/cars", (req, res, next) => {

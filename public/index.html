@@ -8,5 +8,19 @@
 </head>
 <body>
   <h1>Homepage</h1>
+  <script>
+    const fetchCars = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/v1/cars/');
+        if(!response.ok) throw response;
+        const data = await response.json();
+        console.log("🚀 ~ file: index.html ~ line 17 ~ fetchCars ~ data", data)
+        
+      } catch(err) {
+        console.log(err)
+      }
+    }
+    fetchCars();
+  </script>
 </body>
 </html>
